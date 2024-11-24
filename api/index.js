@@ -2,8 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const passport = require("passport");
-const LocalStartegy = require("passport-local").Strategy
-const bcrypt = require('bcrypt');
+const LocalStartegy = require("passport-local").Strategy;
+const bcrypt = require("bcrypt");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 8100;
@@ -18,20 +18,22 @@ const jwtSecret = process.env.JWT_SECRET;
 
 const jwt = require("jsonwebtoken");
 
-
 const upload = require("./middlewares/multerConfig");
 
-mongoose.connect(
-    "mongodb+srv://salazar-davinci:excalibur2018@cluster0.kdxgw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    }
-).then(() => {
-    console.log("Connected to MongoDB");
-}).catch((err) => {
-    console.log("Error connecting to MongoDB", err);
-});
+mongoose
+    .connect(
+        "mongodb+srv://salazar-davinci:excalibur2018@cluster0.kdxgw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+        {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }
+    )
+    .then(() => {
+        console.log("Connected to MongoDB");
+    })
+    .catch((err) => {
+        console.log("Error connecting to MongoDB", err);
+    });
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
@@ -40,7 +42,7 @@ app.listen(port, () => {
 const User = require("./models/user");
 const Message = require("./models/message");
 
-//User registration 
+//User registration
 app.post("/register", upload.single("image"), async (req, res) => {
     const { name, email, password } = req.body;
     const image = req.file;
@@ -67,10 +69,12 @@ app.post("/register", upload.single("image"), async (req, res) => {
             name,
             email: normalizedEmail,
             password: hashedPassword,
-            image: image ? {
-                data: image.buffer,
-                contentType: image.mimetype
-            } : undefined,
+            image: image
+                ? {
+                    data: image.buffer,
+                    contentType: image.mimetype,
+                }
+                : undefined,
         });
 
         await newUser.save();
@@ -80,7 +84,6 @@ app.post("/register", upload.single("image"), async (req, res) => {
         res.status(500).json({ message: "Error registering user" });
     }
 });
-
 
 // Getting Image for profile
 app.get("/user/:id/image", async (req, res) => {
@@ -95,10 +98,9 @@ app.get("/user/:id/image", async (req, res) => {
         console.error("Error getting image:", err);
         res.status(500).json({ message: "Error getting image" });
     }
-}
-);
+});
 
-
+// User login
 // User login
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
@@ -106,8 +108,9 @@ app.post("/login", async (req, res) => {
     if (!email || !password) {
         return res.status(400).json({ message: "Please enter all fields" });
     }
+
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(400).json({ message: "User does not exist" });
         }
@@ -117,11 +120,19 @@ app.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ id: user._id }, "secret");
-        res.status(200).json({ message: "Login successfull", token, userID: user._id });
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+        });
+
+        // Return token and user ID
+        res.status(200).json({
+            message: "Login successful",
+            token,
+            userID: user._id,
+        });
     } catch (err) {
         console.error("Error logging in user:", err);
         res.status(500).json({ message: "Error logging in user" });
     }
-}
-);
+});

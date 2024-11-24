@@ -1,10 +1,40 @@
-import { Text, View, StyleSheet, ScrollView, KeyboardAvoidingView, TextInput, TouchableOpacity, Image, Pressable } from 'react-native';
-
+import { Text, View, StyleSheet, ScrollView, KeyboardAvoidingView, TextInput, TouchableOpacity, Image, Pressable, Alert } from 'react-native';
+import React, { useState } from 'react';
 
 export default function LoginScreen({ navigation }) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     function handleLogin() {
-        navigation.navigate('Home')
+        // Validate the inputs
+        if (!email || !password) {
+            Alert.alert('Error', 'Please enter both email and password');
+            return;
+        }
+
+        // Make API call to login
+        fetch('http://192.168.68.118:8100/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.message === 'Login successful') {
+                    // Store the token (Optional)
+                    // Example: AsyncStorage.setItem('token', data.token);
+                    // Navigate to the Home screen
+                    navigation.navigate('Home', { userID: data.userID });
+                } else {
+                    Alert.alert('Login Failed', data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error logging in:', error);
+                Alert.alert('Error', 'Something went wrong, please try again later.');
+            });
     }
 
     return (
@@ -18,74 +48,81 @@ export default function LoginScreen({ navigation }) {
                             resizeMode="contain"
                         />
                     </View>
-                    {/* <View style={{ marginTop: 20, justifyContent: "center", alignItems: "center" }}>
-                        <Text style={{ color: "#4A55A2", fontSize: 17, fontWeight: 600 }}>Sign In</Text>
-                        <Text style={{ color: 'white', fontSize: 17, fontWeight: 600, marginTop: 15 }}>Sign In to Your Account</Text>
-                    </View> */}
 
                     <View style={{ marginTop: 10 }}>
                         <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 17 }}>Email</Text>
-                        <TextInput placeholder='Enter your email' style={
-                            {
-                                color: 'gray',
+                        <TextInput
+                            value={email}
+                            onChangeText={setEmail}
+                            placeholder="Enter your email"
+                            style={{
+                                color: 'black',
                                 backgroundColor: 'white',
                                 padding: 10,
                                 borderRadius: 20,
                                 marginTop: 10,
                                 width: 300,
                                 height: 50,
-
-                            }} />
+                            }}
+                        />
                     </View>
-
 
                     <View style={{ marginTop: 30 }}>
                         <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 17 }}>Password</Text>
-                        <TextInput placeholder='Enter your password' style={
-                            {
-                                color: 'gray',
+                        <TextInput
+                            value={password}
+                            onChangeText={setPassword}
+                            placeholder="Enter your password"
+                            secureTextEntry
+                            style={{
+                                color: 'black',
                                 backgroundColor: 'white',
                                 padding: 10,
                                 borderRadius: 20,
                                 marginTop: 10,
                                 width: 300,
-                                height: 50
-
-                            }} />
+                                height: 50,
+                            }}
+                        />
                     </View>
 
-                    <TouchableOpacity style={{
-                        backgroundColor: 'red',
-                        marginTop: 40,
-                        padding: 10,
-                        borderRadius: 20,
-                        width: 125,
-                        height: 50,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginLeft: 80,
-                        elevation: 3
-                    }} onPress={() => handleLogin()}>
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: 'red',
+                            marginTop: 40,
+                            padding: 10,
+                            borderRadius: 20,
+                            width: 125,
+                            height: 50,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginLeft: 80,
+                            elevation: 3,
+                        }}
+                        onPress={handleLogin}
+                    >
                         <Text style={{ color: 'white', fontWeight: 'bold' }}>Sign In</Text>
                     </TouchableOpacity>
 
                     <Pressable onPress={() => navigation.navigate('Register')}>
-                        <Text style={{
-                            color: 'white',
-                            marginTop: 25,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginLeft: 40,
-                            fontWeight: '500',
-                            fontSize: 15
-                        }}>
+                        <Text
+                            style={{
+                                color: 'white',
+                                marginTop: 25,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginLeft: 40,
+                                fontWeight: '500',
+                                fontSize: 15,
+                            }}
+                        >
                             Don't have an account? <Text style={{ color: 'red', fontWeight: 'bold' }}>Sign Up</Text>
                         </Text>
                     </Pressable>
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -94,7 +131,5 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: 'black',
         alignItems: 'center',
-
     },
-
 });

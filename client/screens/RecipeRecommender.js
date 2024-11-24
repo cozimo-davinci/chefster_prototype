@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 
-const HomePage = () => {
+const RecipeRecommender = () => {
     return (
         <ScrollView
             style={{
@@ -16,13 +16,13 @@ const HomePage = () => {
                 justifyContent: 'center',
             }}>
             <View style={styles.container}>
-                <Text style={styles.text}>Welcome to the Home Page!</Text>
+                <Text style={styles.text}>Welcome to the Recipe Recommender!</Text>
             </View>
         </ScrollView>
     );
 };
 
-export default HomePage;
+export default RecipeRecommender;
 
 const styles = StyleSheet.create({
     container: {
