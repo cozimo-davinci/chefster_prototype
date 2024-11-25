@@ -1,13 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import HomePage from './screens/HomePage'; // Import HomePage only here
-import ProfileScreen from './screens/ProfileScreen'; // Example additional screen
+import HomePage from './screens/HomePage';
+import ProfileScreen from './screens/ProfileScreen';
 import RecipeRecommender from './screens/RecipeRecommender';
 import MealPlanner from './screens/MealPlanner';
-import Groups from './screens/Groups';
+import Groups from './screens/Chat';
 import Map from './screens/Map';
+import ChatList from './screens/ChatList';
+
 const Tab = createBottomTabNavigator();
+
 
 const BottomTabNavigator = () => {
     return (
@@ -36,15 +39,24 @@ const BottomTabNavigator = () => {
                     backgroundColor: 'black',
                     borderTopWidth: 2,
                     borderTopColor: 'lime',
-                    paddingTop: 10
-
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                    height: 80,
                 },
-                headerShown: false, // Hide header for bottom tabs
+                tabBarLabelStyle: {
+                    fontSize: 10,
+                    color: 'white',
+                    textAlign: 'center',
+                    paddingBottom: 4,
+                    allowFontScaling: true,
+                },
+                headerShown: false,
             })}
+
         >
             <Tab.Screen name="Home" component={HomePage} />
             <Tab.Screen name='Meal Planner' component={MealPlanner} />
-            <Tab.Screen name='Groups' component={Groups} />
+            <Tab.Screen name='Groups' component={ChatList} />
             <Tab.Screen name='Recipe Recommender' component={RecipeRecommender} />
             <Tab.Screen name='Map' component={Map} />
             <Tab.Screen name="Account" component={ProfileScreen}
